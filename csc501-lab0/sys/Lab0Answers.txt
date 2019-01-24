@@ -1,0 +1,83 @@
+1.Assuming the XINU text begins at address 0x0, draw a rough diagram of XINU’s memory layout with addresses derived from your experimental measurements. Include the information you uncovered from running your version of printsegaddress() and printprocstks().
+
+|									|
+|		Free						|
+|									|
+|———————————————————————————————————|--> stack base: 0x00ffeff8
+|									|
+|									|
+|						            |--> stack pointer: 0x00ffef70
+|		Process(main)				|
+|___________________________________|--> stack limit: 0x00ffdffc
+|									|
+|	    Stack						|
+|___________________________________|
+|									|
+|									|
+|		Heap						|
+|									|	
+|___________________________________|
+|									|--> end address of bss segment: 0x00029f18
+|									|
+|		BSS							|
+|									|
+|___________________________________|
+|									|--> end address of data segment: 0x0002187c
+|									|
+|		Data						|
+|									|
+|___________________________________|
+|									|--> end address of text segment: 0x0001c31c
+|									|
+|		Text						|
+|									|
+|___________________________________|--> Begin address of text segment: 0x0
+
+2.What is the difference in stack top address before and after calling printtos() ? Draw a diagram to illustrate what are the contents of the items pushed into the stack between these two time points.
+
+After calling printtos() the stack base address of main() function and return address will push into the stack, so the stack top address will minus 2.
+___________________->stack top address before calling printtos(): 0x00ffef98
+|				   |
+|return address	   |
+|__________________|
+|stack base address|
+|of main()		   |
+|__________________|->stack top address after calling printtos(): 0x00ffef90
+
+3.Which byte order is adopted in the host machine that we are using ? How did you find out ?
+
+It is little endian.
+We can use the code below to test the byte order of the host machine:
+
+short int p = 0x2211;
+char q =  *((char *)&p);
+if(q == 0x22)
+{
+	printf("big endian");
+}
+else
+{
+	printf("little endian");
+}
+
+4.Briefly describe the mov, push, pusha, pop, and popa instructions in the x86.
+
+mov source, destination:
+Copies the first operand (source operand) to the second operand (destination operand). The source operand can be an immediate value, general-purpose register, segment register, or memory location; the destination register can be a general-purpose register, segment register, or memory location. Both operands must be the same size, which can be a byte, a word, or a doubleword.
+
+push source:
+Decrements the stack pointer and then stores the source operand on the top of the stack. The address-size attribute of the stack segment determines the stack pointer size (16 bits or 32 bits), and the operand-size attribute of the current code segment determines the amount the stack pointer is decremented (2 bytes or 4 bytes).
+
+pusha:
+Pushes the contents of the general-purpose registers onto the stack. The registers are stored on the stack in the following order: EAX, ECX, EDX, EBX, EBP, ESP (original value), EBP, ESI, and EDI (if the current operand-size attribute is 32) and AX, CX, DX, BX, SP (original value), BP, SI, and DI (if the operand-size attribute is 16). 
+
+pop destination:
+Loads the value from the top of the stack to the location specified with the destination operand and then increments the stack pointer. The destination operand can be a general-purpose register, memory location, or segment register.
+
+popa:
+Pops doublewords (POPAD) or words (POPA) from the stack into the general-purpose registers.The registers are loaded in the following order: EDI, ESI, EBP, EBX, EDX, ECX, and EAX (if the operand-size attribute is 32) and DI, SI, BP, BX, DX, CX, and AX (if the operand-size attribute is 16). (These instructions reverse the operation of the PUSHA/PUSHAD instructions.) The value on the stack for the ESP or SP register is ignored. Instead, the ESP or SP register is incremented after each register is loaded.
+
+5.In a stack frame, local variables are stored below the top of the stack. In task 3, does your result show all the local variables declared in your printtos function? If not, can you explain that? (hint: try to disable the compiler optimization by specifing -O0 in your Makefile)
+
+No, because the compliler put them into registers for optimization.
+
