@@ -1,11 +1,14 @@
 # OS-Course-Project-0
 Course Project 0 for CSC501 Operating System
+
 PA 0: Getting Acquainted with XINU
 
 1. Objective
+
 The objective of this introductory lab is to familiarize you with the process of compiling and running XINU, the tools involved, and the run-time environment and segment layout.
 
 2. Lab Setup Guide
+
 XINU is a small Unix-like operating system originally developed by Douglas Comer for instructional purposes at Purdue University. It is small enough so that we can understand it entirely within one semester. As part of lab assignment, we will re-implement or improve some apsects of XINU.
 
 Step 1: Setting environment variables for lab assignments:
@@ -15,12 +18,15 @@ Get access to a customized VCL image — XINU+QEMU (CSC501) — through the VCL 
 Step 2: Untar the XINU source files as follows:
 
 Change to your home directory, if you are not already in it.
+
 cd
+
 2. Untar the XINU source by typing the following:
 
 The csc501-lab0.tgz file is available is available on moodle.
 
 tar xzvf csc501-lab0.tgz
+
 In your home directory, you will now have a directory named csc501-lab0. The subdirectories under this directory contain source code, header files, etc, for XINU. NOTE: the tar file name may be different from the above depending on the lab you are working on. Please refer to the lab handouts for the location of the tar file for the current lab.
 
 Step 3: Building XINU
@@ -28,44 +34,61 @@ Step 3: Building XINU
 To compile the XINU kernel which will be downloaded and run on the backend machines, run “make” in the compile directory as follows:
 
 cd csc501-lab0/compile
+
 make depend
+
 make
+
 This creates an OS image called 'xinu.elf'.
+
 If you get a permission denied issue, please go to the config directory and change permission of config file, and then compile using the previous commands.
 
 chmod 755 config
+
 Step 4: Running and debugging XINU
 
 The XINU image runs on the QEMU emulator machines. To boot up the image, type:
 
 make run
+
 XINU should start running and print a message “Hello World, Xinu lives.”Typing (control-a c) will always bring you to ‘(qemu)’ prompt. From there, you can quit by typing ‘q‘
 
 To debug XINU, run the image in the debug mode by:
 
 make debug
+
 Then execute GDB in another ssh session:
 
 gdb xinu.elf
+
 In the (gdb) console, connect to the remote server by:
 
 target remote localhost:1234
+
 You can use many debugging features provided by GDB, e.g., adding a break point at the main function:
 
 b main
+
 To run to the next breakpoint, type:
 
 c
+
 The detailed document for GDB can be found here
 
 3. Readings
+
 The Intel manuals (Volume 1, Volume 2, Volume 3) are available here
+
 A brief guide on the 30386 architecture.
+
 AT&T assembly information specific to the gnu assembler is available here as a wikibook.
+
 Any man pages/manuals you discover that you need.
+
 Note: The Intel document is hundreds of pages long and there is no need to print it. Please do not print it!
 
 4. Tasks
+
 You will be using the csc501-lab0.tgz you have downloaded and compiled by following the lab setup guide. And you are asked to write several XINU functions that perform the following tasks:
 
 1. long zfunction(long param)
@@ -89,32 +112,49 @@ To help you do this, please look into proc.h in the h/ directory. Note the proct
 5. void printsyscallsummary()
 
 Print the summary of the system calls which have been invoked for each process. This task is loosely based on the functionality of LTTng . There are 43 system calls declared. Please look into kernel.h in the h/ directory to see all declared system calls. However, only 27 system calls are implemented in this XINU version. The implementation of these 27 system calls are in the sys/ directory. You are asked to print the frequency (how many times each system call type is invoked) and the average execution time (how long it takes to execute each system call type in average) of these 27 system calls for each process. In order to do this, you will need to modify the implementation of these 27 types of system calls to trace them whenever they are invoked. To measure the time, XINU provides a global variable named ctr1000 to track the time (in milliseconds) passed by since the system starts. Please look into sys/clkinit.c and sys/clkint.S to see the details.
+
 You will also need to implement two other functions:
+
 void syscallsummary_start(): to start tracing the system calls. All the system calls are invoked after calling this function (and before calling syscallsummary_stop()) will be presented in the system call summary.
+
 void syscallsummary_stop(): to stop tracing the system calls.
+
 In other words, these two functions determine the duration in which the system calls are traced.
+
 To help you complete this task, we provide two files, syscalls.txt lists all the system calls you will need to trace, and test.c demonstrates the usage of the functions you will implement (note that this is only the test file and will not be used for grading).
 
 Implement this lab as a set of functions that can be called from main(). Each function should reside in a separate file in the sys directory, and should be incorporated into the Makefile. The files should be named after the functions they are implementing with C files having the .c extension and the assembly files having the .S extension. For example, the file that will hold void printsegaddress() should be named printsegaddress.c; and the file that will hold long zfunction(long param) should be named zfunction.S. You should put syscallsummary_start, syscallsummary_stop functions in the same file as printsyscallsummary function and name it as printsyscallsummary.c . If you require a header file, please name it lab0.h. Note: as you create new files, you may need to update the Makefile (located in the compile/directory) to configure it to compile your files correctly. Just look at what is done for the existing files (e.g., main.c) to see what you have to do.
 
 5. Additional Questions
+
 Write your answers to the following questions in a file named Lab0Answers.txt(in simple text).
 
 Please place this file in the sys/ directory and turn it in, along with the above programming assignment.
 
 Assuming the XINU text begins at address 0x0, draw a rough diagram of XINU’s memory layout with addresses derived from your experimental measurements. Include the information you uncovered from running your version of printsegaddress() and printprocstks().
+
 What is the difference in stack top address before and after calling printtos() ? Draw a diagram to illustrate what are the contents of the items pushed into the stack between these two time points.
+
 Which byte order is adopted in the host machine that we are using ? How did you find out ?
+
 Briefly describe the mov, push, pusha, pop, and popa instructions in the x86.
+
 In a stack frame, local variables are stored below the top of the stack. In task 3, does your result show all the local variables declared in your printtos function? If not, can you explain that? (hint: try to disable the compiler optimization by specifing -O0 in your Makefile)
+
 Turn-in Instructions
+
 Electronic turn-in instructions:
 
 make sure your output follows the output template, as mush as possible
+
 go to the csc501-lab0/compile directory and do make clean.
+
 go to the directory of which your csc501-lab0 directory is a subdirectory (NOTE: please do not rename csc501-lab0, or any of its subdirectories.)e.g., if /home/uid/csc501-lab0 is your directory structure, goto /home/uid/
+
 create a subdirectory TMP (under the directory csc501-lab0) and copy all the files you have modified/written, both .c files and .h files into the directory.
+
 compress the csc501-lab0 directory into a tgz file and submit on Moodle PA 0. Please only upload one tgz file.tar czf csc501-lab0.tgz csc501-lab0
+
 You can write code in main.c to test your procedures, but please note that when we test your programs we will replace the main.c file! Therefore, do not put any functionality in the main.c file.
 
 Also, ALL debugging output MUST be turned off before you submit your code.
